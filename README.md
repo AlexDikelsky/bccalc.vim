@@ -20,3 +20,5 @@ the line, then makes the input bc-readable. You can also type <leader>bc on a vi
     (a * b)²
     
 then typing `<leader>bc` prints `answer = 36`.
+
+[![asciicast](https://asciinema.org/a/290011.svg)](https://asciinema.org/a/290011)
