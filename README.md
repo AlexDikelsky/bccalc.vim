@@ -22,3 +22,5 @@ the line, then makes the input bc-readable. You can also type <leader>bc on a vi
 then typing `<leader>bc` prints `answer = 36`.
 
 [![asciicast](https://asciinema.org/a/290011.svg)](https://asciinema.org/a/290011)
+
+<script src="https://asciinema.org/a/14.js" id="asciicast-14" async></script>
