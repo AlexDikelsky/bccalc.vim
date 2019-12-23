@@ -2,55 +2,68 @@
 " :Calculate sin (3) + sin (4) ^ 2
 command! -nargs=+ Calculate echo "<args> = " . Calculate ("<args>")
 
-"" calculate expression from selection, pick a mapping, or use the Leader form
-vnoremap \bc "ey:call CalcLines(1)<CR>
-"vnoremap <Leader>bc "ey:call<SID>CalcBC(1)<CR>
+"" calculate expression from visual selection
+vnoremap <leader>bc "ey:call CalcLines(1)
 
-"" calculate expression on current line, pick a mapping, or use the Leader
-noremap  \bc "eyy:call CalcLines(0)<CR>
-"noremap  <Leader>bc "eyy:call<SID>CalcBC(0)<CR>
+"" calculate expression in the current unnamed register
+noremap  <leader>bc "eyy:call CalcLines(0)
 
-command! -nargs=0 -range Average call CalcAverage(getbufline(bufname("%"), <line1>,<line2>))
-command! -nargs=0 -range Total call CalcTotal(getbufline(bufname("%"), <line1>,<line2>))
-" getbufline(bufname(""), 10,13)
 " ---------------------------------------------------------------------
 "  Calculate:
 "    clean up an expression, pass it to bc, return answer
 function! Calculate (s)
 
-	let str = a:s
+	let l:str= a:s
 
 	" remove newlines and trailing spaces
-	let str = substitute (str, "\n",   "", "g")
-	let str = substitute (str, '\s*$', "", "g")
+	let l:str= substitute (l:str, "\n",   "", "g")
+	let l:str= substitute (l:str, '\s*$', "", "g")
 
 	" sub common func names for bc equivalent
-	let str = substitute (str, '\csin\s*(',  's (', 'g')
-	let str = substitute (str, '\ccos\s*(',  'c (', 'g')
-	let str = substitute (str, '\catan\s*(', 'a (', 'g')
-	let str = substitute (str, "\cln\s*(",   'l (', 'g')
-	let str = substitute (str, '\clog\s*(',  'l (', 'g')
-	let str = substitute (str, '\cexp\s*(',  'e (', 'g')
+	let l:str = substitute (l:str, '\csin\s*(',  's (', 'g')
+	let l:str = substitute (l:str, '\ccos\s*(',  'c (', 'g')
+	let l:str = substitute (l:str, '\catan\s*(', 'a (', 'g')
+	let l:str = substitute (l:str, "\cln\s*(",   'l (', 'g')
+	let l:str = substitute (l:str, '\clog\s*(',  'l (', 'g')
+	let l:str = substitute (l:str, '\cexp\s*(',  'e (', 'g')
 
-	" alternate exponitiation symbols
-	let str = substitute (str, '\*\*', '^', "g")
-	let str = substitute (str, '`', '^',    "g")
+	" alternate exponentiation symbols
+	let l:str = substitute (l:str, '\*\*', '^', "g")
 
+	" Substitute superscript characters like ² to become ^(2)
+
+	let l:str = substitute(l:str, "[⁰¹²³⁴⁵⁶⁷⁸⁹]\\+", "^(&)", "g")
+	"First put them in parenthesis
+	
+	let l:str = substitute(l:str, "⁰", 0, "g")
+	let l:str = substitute(l:str, "¹", 1, "g")
+	let l:str = substitute(l:str, "²", 2, "g")
+	let l:str = substitute(l:str, "³", 3, "g")
+	let l:str = substitute(l:str, "⁴", 4, "g")
+	let l:str = substitute(l:str, "⁵", 5, "g")
+	let l:str = substitute(l:str, "⁶", 6, "g")
+	let l:str = substitute(l:str, "⁷", 7, "g")
+	let l:str = substitute(l:str, "⁸", 8, "g")
+	let l:str = substitute(l:str, "⁹", 9, "g")
+
+	"Insert semicolons to allow longer expressions
+	let l:str = substitute(l:str, "\\n", ";", "g")
+	
 	" escape chars for shell
-	let str = escape (str, '*();&><|')
+	let l:str = escape (l:str, '*();&><|')
 
-	let preload = exists ("g:bccalc_preload") ? g:bccalc_preload : ""
+	let l:preload = exists ("g:bccalc_preload") ? g:bccalc_preload : ""
 
 	" run bc
-	let answer = system ("echo " . str . " \| bc -l " . preload)
+	let l:answer = system ("echo " . l:str . " \| bc -l " . l:preload)
 
 	" strip newline
-	let answer = substitute (answer, "\n", "", "")
+	let l:answer = substitute (l:answer, "\n", "", "")
 
 	" strip trailing 0s in decimals
-	let answer = substitute (answer, '\.\(\d*[1-9]\)0\+', '.\1', "")
+	let l:answer = substitute (l:answer, '\.\(\d*[1-9]\)0\+', '.\1', "")
 
-	return answer
+	return l:answer
 endfunction
 
 " ---------------------------------------------------------------------
@@ -61,55 +74,13 @@ endfunction
 " answer after '='
 function! CalcLines(vsl)
 
-	let has_equal = 0
-
-	" remove newlines and trailing spaces
-	let @e = substitute (@e, "\n", "",   "g")
+	" replace newlines with semicolons and remove trailing spaces
+	let @e = substitute (@e, "\n", ";", "g")
 	let @e = substitute (@e, '\s*$', "", "g")
 
-	" if we end with an equal, strip, and remember for output
-	if @e =~ "=$"
-		let @e = substitute (@e, '=$', "", "")
-		let has_equal = 1
-	endif
-
-	" if there is another equal in the line, assume chained equations, remove
-	" leading ones
-	let @e = substitute (@e, '^.\+=', '', '')
-
-	let answer = Calculate (@e)
+	let l:answer = Calculate (@e)
 
 	" append answer or echo
-	if has_equal == 1
-		if a:vsl == 1
-			normal `>
-		else
-			normal $
-		endif
-		exec "normal a" . answer
-	else
-		echo "answer = " . answer
-    call setreg('"', answer)
-	endif
-endfunction
-
-function! CalcFilterBlankLines(lines)
-  return filter(a:lines, 'v:val !~ "^\\s*$"')
-endfunction
-
-function! CalcAverage(lines)
-  let lines = CalcFilterBlankLines(a:lines)
-
-  let expr = "(" . join(lines, " + ") . ") / " . len(lines)
-  let answer = Calculate(expr)
-  
-  echo "Yanked average of '" . answer . "' to register \""
-  call setreg('"', answer)
-endfunction
-
-function! CalcTotal(lines)
-  let lines = CalcFilterBlankLines(a:lines)
-  let answer = Calculate(join(lines, " + "))
-  echo "Yanked total of '" . answer . "' to register \""
-  call setreg('"', answer)
+	echo "answer = " . l:answer
+	call setreg('"', l:answer)
 endfunction
