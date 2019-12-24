@@ -11,7 +11,7 @@ noremap  <leader>bc "eyy:call CalcLines(0)<cr>
 " ---------------------------------------------------------------------
 "  Calculate:
 "    clean up an expression, pass it to bc, return answer
-function! Calculate (s)
+function! s:Calculate (s)
 
 	let l:str= a:s
 
@@ -41,7 +41,7 @@ function! Calculate (s)
 	    "First, it changes the string to a list of characters
 	    "Next it maps 2 to ², and so on for all the numbers
 	    "Finally it joins all of the returned characters
-	    let l:str = join(map(split(l:str, '\zs'), 'FromSuperToNormal(v:val)'), "")
+	    let l:str = join(map(split(l:str, '\zs'), 's:FromSuperToNormal(v:val)'), "")
 
 	" escape chars for shell
 	let l:str = escape (l:str, '*();&><|')
@@ -60,7 +60,7 @@ function! Calculate (s)
 	return l:answer
 endfunction
 
-function! FromSuperToNormal(char)  "{{{
+function! s:FromSuperToNormal(char)  "{{{
     "Have to use a list rather than a string because you're 
     "not using ascii characters
     let l:super = split("⁰¹²³⁴⁵⁶⁷⁸⁹", '\zs')    
@@ -91,7 +91,7 @@ function! CalcLines(vsl)
 	let @e = substitute (@e, "\n", ";", "g")
 	let @e = substitute (@e, '\s*$', "", "g")
 
-	let l:answer = Calculate (@e)
+	let l:answer = s:Calculate (@e)
 
 	" append answer or echo
 	echo "answer = " . l:answer

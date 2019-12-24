@@ -24,8 +24,8 @@ then typing `<leader>bc` prints `answer = 36`.
 
 You can install this by running
 
-    mkdir -p ~/.vim/pack/AlexDikelsky/start
-    cd ~/.vim/pack/AlexDikelsky/start
+    mkdir -p ~/.vim/pack/plugin/start
+    cd ~/.vim/pack/plugin/start
     git clone https://github.com/AlexDikelsky/bccalc.vim
     vim -u NONE -c "helptags bccalc.vim/doc" -c q
 
