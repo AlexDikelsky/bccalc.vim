@@ -27,6 +27,7 @@ function! Calculate (s)
 	let l:str = substitute (l:str, '\clog\s*(',  'l (', 'g')
 	let l:str = substitute (l:str, '\cexp\s*(',  'e (', 'g')
 
+
 	" alternate exponentiation symbols
 	let l:str = substitute (l:str, '\*\*', '^', "g")
 
@@ -69,9 +70,9 @@ function! FromSuperToNormal(char)  "{{{
     if l:location ==# -1
 	return a:char
     elseif a:char ==# '^'  
-	"I think ^ is interprated as the anchor regex, so you have to manually
-	"do this. You might run into other problems, but multiplication and
-	"addition seem find. 
+	"The ^ character is interprated as the anchor regex, so you have to manually
+	"do this or else l:location becomes 0 You might run into other problems,
+	"but multiplication and addition seem fine. 
 	return '^'
     else
 	return l:location

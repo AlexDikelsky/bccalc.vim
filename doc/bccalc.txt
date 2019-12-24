@@ -1,0 +1,24 @@
+*bccalc.txt* translations for |bc|
+
+INTRODUCTION					*bccalc*
+
+This plugin makes it simple to evaluate the current line or visual selection
+in |bc|. This is forked from https://github.com/timcharper/bccalc.vim, and
+has some major differences. Instead of treating equal signs as chained equations, 
+they are treated as assignment operators. Also, superscripts such as ² are 
+interprated as ^(2)
+
+MAPPINGS					*bccalc-mappings*
+
+						*<leader>bc*
+<leader>bc  Evaluate the current line or visual selection as a |bc| expression.
+	    Superscript characters such as ² will be translated to ^(2), and
+	    functions such as log(x) or cos(c) will be translated to their |bc|
+	    equivalents. The output will be echoed and copied into the unnamed 
+	    register.
+
+ISSUES						*bccalc-issues*
+
+See https://github.com/AlexDikelsky/bccalc.vim for bugs and issues. 
+
+vim:tw=78:ts=8:ft=help:norl:

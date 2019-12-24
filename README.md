@@ -19,6 +19,6 @@ the line, then makes the input bc-readable. You can also type <leader>bc on a vi
     b = 3
     (a * b)²
     
-then typing `<leader>bc` prints `answer = 36`.
+then typing `<leader>bc` prints `answer = 36`. In addition, the unnamed register is filled with the answer.
 
 [![asciicast](https://asciinema.org/a/290011.svg)](https://asciinema.org/a/290011)
