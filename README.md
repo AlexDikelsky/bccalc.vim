@@ -12,7 +12,7 @@ yields 27. In addition,
 
 will be parsed correctly even though `bc` names the arctan function `t(x)`
 
-To run on a single line, type <leader>bc. This replaces the current register with
+To run on a single line, type \<leader\>bc. This replaces the current register with
 the line, then makes the input bc-readable. You can also type <leader>bc on a visual selection. For example, selecting
 
     a = 2
