@@ -3,10 +3,10 @@
 command! -nargs=+ Calculate echo "<args> = " . Calculate ("<args>")
 
 "" calculate expression from visual selection
-vnoremap <leader>bc "ey:call CalcLines(1)
+vnoremap <leader>bc "ey:call CalcLines(1)<cr>
 
 "" calculate expression in the current unnamed register
-noremap  <leader>bc "eyy:call CalcLines(0)
+noremap  <leader>bc "eyy:call CalcLines(0)<cr>
 
 " ---------------------------------------------------------------------
 "  Calculate:
@@ -30,21 +30,16 @@ function! Calculate (s)
 	" alternate exponentiation symbols
 	let l:str = substitute (l:str, '\*\*', '^', "g")
 
-	" Substitute superscript characters like ² to become ^(2)
+	" Substitute superscript characters like ² to become ^(²)
 
 	let l:str = substitute(l:str, "[⁰¹²³⁴⁵⁶⁷⁸⁹]\\+", "^(&)", "g")
 	"First put them in parenthesis
 	
-	let l:str = substitute(l:str, "⁰", 0, "g")
-	let l:str = substitute(l:str, "¹", 1, "g")
-	let l:str = substitute(l:str, "²", 2, "g")
-	let l:str = substitute(l:str, "³", 3, "g")
-	let l:str = substitute(l:str, "⁴", 4, "g")
-	let l:str = substitute(l:str, "⁵", 5, "g")
-	let l:str = substitute(l:str, "⁶", 6, "g")
-	let l:str = substitute(l:str, "⁷", 7, "g")
-	let l:str = substitute(l:str, "⁸", 8, "g")
-	let l:str = substitute(l:str, "⁹", 9, "g")
+	"This changes all numbers like ² to 2
+	"First, it changes the string to a list of characters
+	"Next it maps 2 to ², and so on for all the numbers
+	"Finally it joins all of the returned characters
+	let l:str = join(map(split(l:str, '\zs'), 'FromSuperToNormal(v:val)'), "")
 
 	"Insert semicolons to allow longer expressions
 	let l:str = substitute(l:str, "\\n", ";", "g")
@@ -66,12 +61,37 @@ function! Calculate (s)
 	return l:answer
 endfunction
 
+function! FromSuperToNormal(char)  "{{{
+    if a:char ==# "⁰"
+	return "0"
+    elseif a:char ==# "¹"
+	return "1"
+    elseif a:char ==# "²"
+	return "2"
+    elseif a:char ==# "³"
+	return "3"
+    elseif a:char ==# "⁴"
+	return "4"
+    elseif a:char ==# "⁵"
+	return "5"
+    elseif a:char ==# "⁶"
+	return "6"
+    elseif a:char ==# "⁷"
+	return "7"
+    elseif a:char ==# "⁸"
+	return "8"
+    elseif a:char ==# "⁹"
+	return "9"
+    else
+	return a:char  "If it isn't a superscript, leave it be
+endfunction "}}}
+
+
 " ---------------------------------------------------------------------
 " CalcLines:
 "
 " take expression from lines, either visually selected or the current line, as
-" passed determined by arg vsl, pass to calculate function, echo or past
-" answer after '='
+" passed determined by arg vsl
 function! CalcLines(vsl)
 
 	" replace newlines with semicolons and remove trailing spaces
@@ -84,3 +104,4 @@ function! CalcLines(vsl)
 	echo "answer = " . l:answer
 	call setreg('"', l:answer)
 endfunction
+
