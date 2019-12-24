@@ -31,15 +31,14 @@ function! Calculate (s)
 	let l:str = substitute (l:str, '\*\*', '^', "g")
 
 	" Substitute superscript characters like ² to become ^(²)
-
-	let l:str = substitute(l:str, "[⁰¹²³⁴⁵⁶⁷⁸⁹]\\+", "^(&)", "g")
-	"First put them in parenthesis
+	    "First put them in parenthesis
+	    let l:str = substitute(l:str, "[⁰¹²³⁴⁵⁶⁷⁸⁹]\\+", "^(&)", "g")
 	
-	"This changes all numbers like ² to 2
-	"First, it changes the string to a list of characters
-	"Next it maps 2 to ², and so on for all the numbers
-	"Finally it joins all of the returned characters
-	let l:str = join(map(split(l:str, '\zs'), 'FromSuperToNormal(v:val)'), "")
+	    "This changes all numbers like ² to 2
+	    "First, it changes the string to a list of characters
+	    "Next it maps 2 to ², and so on for all the numbers
+	    "Finally it joins all of the returned characters
+	    let l:str = join(map(split(l:str, '\zs'), 'FromSuperToNormal(v:val)'), "")
 
 	"Insert semicolons to allow longer expressions
 	let l:str = substitute(l:str, "\\n", ";", "g")
@@ -62,30 +61,24 @@ function! Calculate (s)
 endfunction
 
 function! FromSuperToNormal(char)  "{{{
-    if a:char ==# "⁰"
-	return "0"
-    elseif a:char ==# "¹"
-	return "1"
-    elseif a:char ==# "²"
-	return "2"
-    elseif a:char ==# "³"
-	return "3"
-    elseif a:char ==# "⁴"
-	return "4"
-    elseif a:char ==# "⁵"
-	return "5"
-    elseif a:char ==# "⁶"
-	return "6"
-    elseif a:char ==# "⁷"
-	return "7"
-    elseif a:char ==# "⁸"
-	return "8"
-    elseif a:char ==# "⁹"
-	return "9"
-    else
-	return a:char  "If it isn't a superscript, leave it be
-endfunction "}}}
+    "Have to use a list rather than a string because you're 
+    "not using ascii characters
+    let l:super = split("⁰¹²³⁴⁵⁶⁷⁸⁹", '\zs')    
+    let l:location = match(l:super, a:char)  
 
+    if l:location ==# -1
+	return a:char
+    elseif a:char ==# '^'  
+	"I think ^ is interprated as the anchor regex, so you have to manually
+	"do this. You might run into other problems, but multiplication and
+	"addition seem find. 
+	return '^'
+    else
+	return l:location
+	"You can just return location here because the 0th index is ⁰, the
+	"1st is ¹, and so on
+    endif
+endfunction "}}}
 
 " ---------------------------------------------------------------------
 " CalcLines:
