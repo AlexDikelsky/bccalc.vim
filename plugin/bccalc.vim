@@ -2,11 +2,11 @@
 " :Calculate sin (3) + sin (4) ^ 2
 command! -nargs=+ Calculate echo "<args> = " . Calculate ("<args>")
 
-"" calculate expression from visual selection
-vnoremap <leader>bc "ey:call CalcLines(1)<cr>
+"" calculate expression from visual selection and put result into unnamed reg
+vnoremap <leader>bc "ey:call CalcLines()<cr>
 
-"" calculate expression in the current unnamed register
-noremap  <leader>bc "eyy:call CalcLines(0)<cr>
+"" calculate expression in the current line
+noremap  <leader>bc "eyy:call CalcLines()<cr>
 
 " ---------------------------------------------------------------------
 "  Calculate:
@@ -51,11 +51,14 @@ function! s:Calculate (s)
 	" run bc
 	let l:answer = system ("echo " . l:str . " \| bc -l " . l:preload)
 
-	" strip newline
-	let l:answer = substitute (l:answer, "\n", "", "")
+	" change newlines to separators
+	let l:answer = substitute (l:answer, "\n", ", ", "g")
+
+	" change the last sep to the empty string
+	let l:answer = substitute (l:answer, ", $", "", "")
 
 	" strip trailing 0s in decimals
-	let l:answer = substitute (l:answer, '\.\(\d*[1-9]\)0\+', '.\1', "")
+	let l:answer = substitute (l:answer, '\.\(\d*[1-9]\)0\+', '.\1', "g")
 
 	return l:answer
 endfunction
@@ -64,15 +67,10 @@ function! s:FromSuperToNormal(char)  "{{{
     "Have to use a list rather than a string because you're 
     "not using ascii characters
     let l:super = split("⁰¹²³⁴⁵⁶⁷⁸⁹", '\zs')    
-    let l:location = match(l:super, a:char)  
+    let l:location = index(l:super, a:char)  
 
     if l:location ==# -1
 	return a:char
-    elseif a:char ==# '^'  
-	"The ^ character is interprated as the anchor regex, so you have to manually
-	"do this or else l:location becomes 0. You might run into other problems,
-	"but multiplication and addition seem fine. 
-	return '^'
     else
 	return l:location
 	"You can just return location here because the 0th index is ⁰, the
@@ -85,7 +83,7 @@ endfunction "}}}
 "
 " take expression from lines, either visually selected or the current line, as
 " passed determined by arg vsl
-function! CalcLines(vsl)
+function! CalcLines()
 
 	" replace newlines with semicolons and remove trailing spaces
 	let @e = substitute (@e, "\n", ";", "g")
@@ -93,7 +91,7 @@ function! CalcLines(vsl)
 
 	let l:answer = s:Calculate (@e)
 
-	" append answer or echo
+	" echo answer and put into unnamed register
 	echo "answer = " . l:answer
 	call setreg('"', l:answer)
 endfunction
