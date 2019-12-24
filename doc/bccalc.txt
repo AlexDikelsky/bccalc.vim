@@ -15,7 +15,11 @@ MAPPINGS					*bccalc-mappings*
 	    Superscript characters such as ² will be translated to ^(2), and
 	    functions such as log(x) or cos(c) will be translated to their |bc|
 	    equivalents. The output will be echoed and copied into the unnamed 
-	    register.
+	    register. If an expression such as 
+    
+    a++; a++; a++;
+	    
+	    is inputed, the string "0, 1, 2" will be printed.
 
 ISSUES						*bccalc-issues*
 
