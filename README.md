@@ -1,4 +1,4 @@
-This plugin changes superscripts into bc-compatible notation. For example, running
+This plugin evaluates mathematical expressions. For example, running
 
     <leader>bc
 
@@ -10,15 +10,25 @@ yields 27. In addition,
 
     atan(1234) * 2
 
-will be parsed correctly even though `bc` names the arctan function `t(x)`
+will result in ~π.
 
-To run on a single line, type \<leader\>bc. This replaces the current register with
-the line, then makes the input bc-readable. You can also type <leader>bc on a visual selection. For example, selecting
+To run on a single line, type `<leader>bc`. 
+The unnamed register (which can be "put" by typing `p`) will now contain the result of the expression.
+You can also type `<leader>bc` on a visual selection. For example, selecting
 
     a = 2
     b = 3
     (a * b)²
     
-then typing `<leader>bc` prints `answer = 36`. In addition, the unnamed register is filled with the answer.
+then typing `<leader>bc` prints `answer = 36`.
+
+You can install this by running
+
+    mkdir -p ~/.vim/pack/AlexDikelsky/start
+    cd ~/.vim/pack/AlexDikelsky/start
+    git clone https://github.com/AlexDikelsky/bccalc.vim
+    vim -u NONE -c "helptags bccalc.vim/doc" -c q
+
+or by using a package manager.
 
 [![asciicast](https://asciinema.org/a/290011.svg)](https://asciinema.org/a/290011)
