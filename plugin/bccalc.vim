@@ -16,7 +16,9 @@ function! Calculate (s)
 	let l:str= a:s
 
 	" remove newlines and trailing spaces
-	let l:str= substitute (l:str, "\n",   "", "g")
+	" Shouldn't be any newlines here anyway since
+	" they should have been removed by CalcLines, but this is useful for testing
+	let l:str= substitute (l:str, "\n",   ";", "g")
 	let l:str= substitute (l:str, '\s*$', "", "g")
 
 	" sub common func names for bc equivalent
@@ -41,9 +43,6 @@ function! Calculate (s)
 	    "Finally it joins all of the returned characters
 	    let l:str = join(map(split(l:str, '\zs'), 'FromSuperToNormal(v:val)'), "")
 
-	"Insert semicolons to allow longer expressions
-	let l:str = substitute(l:str, "\\n", ";", "g")
-	
 	" escape chars for shell
 	let l:str = escape (l:str, '*();&><|')
 
@@ -71,7 +70,7 @@ function! FromSuperToNormal(char)  "{{{
 	return a:char
     elseif a:char ==# '^'  
 	"The ^ character is interprated as the anchor regex, so you have to manually
-	"do this or else l:location becomes 0 You might run into other problems,
+	"do this or else l:location becomes 0. You might run into other problems,
 	"but multiplication and addition seem fine. 
 	return '^'
     else
